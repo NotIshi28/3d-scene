@@ -1,5 +1,5 @@
 <html><head><title>3D City Explorer</title><style>
-  body, html {
+  /* body, html {
     margin: 0;
     padding: 0;
     height: 100%;
@@ -19,7 +19,7 @@
     background-color: rgba(0,0,0,0.5);
     padding: 10px;
     border-radius: 5px;
-  }
+  } */
 </style></head><body>
 <canvas id="gameCanvas"></canvas>
 <div id="instructions">
@@ -34,13 +34,33 @@
   const renderer = new THREE.WebGLRenderer({canvas: document.getElementById('gameCanvas')});
   renderer.setSize(window.innerWidth, window.innerHeight);
 
-  document.addEventListener('click', () => document.body.requestPointerLock());
+  
+  const ambientLight = new THREE.AmbientLight(0x404040);
+  scene.add(ambientLight);
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+  directionalLight.position.set(1, 1, 1);
+  scene.add(directionalLight);
+
+  const groundGeometry = new THREE.PlaneGeometry(1000, 1000);
+  const groundMaterial = new THREE.MeshBasicMaterial({color: 0x1a5f1a});
+  const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+  ground.rotation.x = Math.PI / 2;
+  scene.add(ground);
+
+  function createBuilding(x, z, width, height, depth) {
+    const geometry = new THREE.BoxGeometry(width, height, depth);
+    const material = new THREE.MeshPhongMaterial({color: Math.random() * 0xffffff});
+    const building = new THREE.Mesh(geometry, material);
+    building.position.set(x, height / 2, z);
+    scene.add(building);
+  }
+
 
   function animate() {
     requestAnimationFrame(animate);
-    const direction = new THREE.Vector3();
-    camera.getWorldDirection(direction);
-    const sideways = new THREE.Vector3(-direction.z, 0, direction.x).normalize();
+    // const direction = new THREE.Vector3();
+    // camera.getWorldDirection(direction);
+    // const sideways = new THREE.Vector3(-direction.z, 0, direction.x).normalize();
 
     if (keys.w) camera.position.add(direction.multiplyScalar(moveSpeed));
     if (keys.s) camera.position.sub(direction.multiplyScalar(moveSpeed));
