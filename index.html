@@ -34,26 +34,28 @@
   const renderer = new THREE.WebGLRenderer({canvas: document.getElementById('gameCanvas')});
   renderer.setSize(window.innerWidth, window.innerHeight);
 
+  // Lighting
+  const ambientLight = new THREE.AmbientLight(0x404040);
+  scene.add(ambientLight);
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+  directionalLight.position.set(1, 1, 1);
+  scene.add(directionalLight);
 
-  // const ambientLight = new THREE.AmbientLight(0x404040);
-  // scene.add(ambientLight);
-  // const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-  // directionalLight.position.set(1, 1, 1);
-  // scene.add(directionalLight);
+  // Ground
+  const groundGeometry = new THREE.PlaneGeometry(1000, 1000);
+  const groundMaterial = new THREE.MeshBasicMaterial({color: 0x1a5f1a});
+  const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+  ground.rotation.x = Math.PI / 2;
+  scene.add(ground);
 
-  // const groundGeometry = new THREE.PlaneGeometry(1000, 1000);
-  // const groundMaterial = new THREE.MeshBasicMaterial({color: 0x1a5f1a});
-  // const ground = new THREE.Mesh(groundGeometry, groundMaterial);
-  // ground.rotation.x = Math.PI / 2;
-  // scene.add(ground);
-
-  // function createBuilding(x, z, width, height, depth) {
-  //   const geometry = new THREE.BoxGeometry(width, height, depth);
-  //   const material = new THREE.MeshPhongMaterial({color: Math.random() * 0xffffff});
-  //   const building = new THREE.Mesh(geometry, material);
-  //   building.position.set(x, height / 2, z);
-  //   scene.add(building);
-  // }
+  // Buildings
+  function createBuilding(x, z, width, height, depth) {
+    const geometry = new THREE.BoxGeometry(width, height, depth);
+    const material = new THREE.MeshPhongMaterial({color: Math.random() * 0xffffff});
+    const building = new THREE.Mesh(geometry, material);
+    building.position.set(x, height / 2, z);
+    scene.add(building);
+  }
 
   // Create city layout
   for (let i = 0; i < 100; i++) {
@@ -66,6 +68,21 @@
   }
 
   camera.position.set(0, 5, 50);
+
+  // Controls
+  const moveSpeed = 0.5;
+  const keys = {w: false, a: false, s: false, d: false};
+
+  document.addEventListener('keydown', (e) => keys[e.key.toLowerCase()] = true);
+  document.addEventListener('keyup', (e) => keys[e.key.toLowerCase()] = false);
+
+  document.addEventListener('mousemove', (e) => {
+    const movementX = e.movementX || e.mozMovementX || e.webkitMovementX || 0;
+    const movementY = e.movementY || e.mozMovementY || e.webkitMovementY || 0;
+    camera.rotation.y -= movementX * 0.002;
+    // camera.rotation.x -= movementY * 0.002;
+    // camera.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, camera.rotation.x));
+  });
 
   document.addEventListener('click', () => document.body.requestPointerLock());
 
@@ -86,6 +103,8 @@
   }
 
   animate();
+
+  // Responsive canvas
   window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
